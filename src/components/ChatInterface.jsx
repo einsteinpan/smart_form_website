@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+// ChatInterface.jsx
+
+import React, { useState } from 'react';
 import './ChatInterface.css';
 
-function ChatInterface() {
+const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
-  const endOfMessagesRef = useRef(null); // 添加这一行
-
-  useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]); // 添加这个effect来处理滚动
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
@@ -16,27 +13,34 @@ function ChatInterface() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!inputValue.trim()) return;
-    const newMessage = { id: Date.now(), text: inputValue };
-    setMessages([...messages, newMessage]);
-    setInputValue('');
+    if (inputValue.trim() !== '') {
+      setMessages(prevMessages => [...prevMessages, { content: inputValue, sender: 'user' }]);
+      setInputValue('');
+      // 在这里你可以将消息发送到后端
+    }
   };
 
   return (
-    <div className="chat-container">
-      <h1>聊天助理</h1>
-      <div className="messages">
-        {messages.map((message) => (
-          <div key={message.id} className="message">{message.text}</div>
+    <div className="chat-interface">
+      <div className="chat-messages">
+        {messages.map((message, index) => (
+          <div key={index} className={`message ${message.sender}`}>
+            <span>{message.content}</span>
+          </div>
         ))}
-        <div ref={endOfMessagesRef} /> {/* 在消息列表末尾添加这个元素 */}
       </div>
-      <form onSubmit={handleSubmit}>
-        <input type="text" value={inputValue} onChange={handleInputChange} placeholder="請輸入..." />
-        <button type="submit">發送</button>
+      <form onSubmit={handleSubmit} className="message-form">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          placeholder="Type your message..."
+          className="message-input"
+        />
+        <button type="submit" className="send-button">Send</button>
       </form>
     </div>
   );
-}
+};
 
 export default ChatInterface;
